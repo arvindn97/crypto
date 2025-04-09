@@ -124,9 +124,21 @@
     "CryptoAPIGW": {
       "Type": "AWS::Serverless::Api",
       "Properties": {
-        "StageName": "dev"
+        "StageName": "dev",
+        "MethodSettings": [
+          {
+            "ResourcePath": "/currentPriceInfo",
+            "HttpMethod": "POST",
+            "ApiKeyRequired": true
+          },
+          {
+            "ResourcePath": "/getSearchHistory",
+            "HttpMethod": "POST",
+            "ApiKeyRequired": true
+          }
+        ]
       }
-    },     
+    },    
     "CryptoPriceAPI": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
@@ -149,8 +161,7 @@
             "Properties": {
               "Path": "/currentPriceInfo",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" },
-              "ApiKeyRequired": true
+              "RestApiId": { "Ref": "CryptoAPIGW" }
             }
           },
           "PostEndpoint2": {
@@ -158,8 +169,7 @@
             "Properties": {
               "Path": "/getSearchHistory",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" },
-              "ApiKeyRequired": true
+              "RestApiId": { "Ref": "CryptoAPIGW" }
             }
           }
         }
