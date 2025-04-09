@@ -140,6 +140,7 @@
         "Handler": "index.handler",
         "FunctionName":"CryptoPriceAPI",
         "Runtime": "nodejs18.x",
+        "Timeout":"20",
         "CodeUri": "src/",
         "Environment": {
           "Variables": {
