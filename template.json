@@ -124,19 +124,7 @@
     "CryptoAPIGW": {
       "Type": "AWS::Serverless::Api",
       "Properties": {
-        "StageName": "dev",
-        "MethodSettings": [
-          {
-            "ResourcePath": "/currentPriceInfo",
-            "HttpMethod": "POST",
-            "ApiKeyRequired": true
-          },
-          {
-            "ResourcePath": "/getSearchHistory",
-            "HttpMethod": "POST",
-            "ApiKeyRequired": true
-          }
-        ]
+        "StageName": "dev"
       }
     },    
     "CryptoPriceAPI": {
@@ -173,40 +161,6 @@
             }
           }
         }
-      }
-    },
-    "CryptoApiKey": {
-      "Type": "AWS::ApiGateway::ApiKey",
-      "Properties": {
-        "Name": "CryptoApiKey",
-        "Enabled": true,
-        "Value": { "Fn::FindInMap": ["dev", "apiKey", "key"] },
-        "StageKeys": [
-          {
-            "RestApiId": { "Ref": "CryptoAPIGW" },
-            "StageName": "dev"
-          }
-        ]
-      }
-    },
-    "CryptoUsagePlan": {
-      "Type": "AWS::ApiGateway::UsagePlan",
-      "Properties": {
-        "UsagePlanName": "CryptoUsagePlan",
-        "ApiStages": [
-          {
-            "ApiId": { "Ref": "CryptoAPIGW" },
-            "Stage": "dev"
-          }
-        ]
-      }
-    },
-    "CryptoUsagePlanKey": {
-      "Type": "AWS::ApiGateway::UsagePlanKey",
-      "Properties": {
-        "KeyId": { "Ref": "CryptoApiKey" },
-        "KeyType": "API_KEY",
-        "UsagePlanId": { "Ref": "CryptoUsagePlan" }
       }
     }
   },
