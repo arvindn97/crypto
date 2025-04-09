@@ -12,7 +12,7 @@ const senderEmail = process.env.senderEmail;
 const apiEndpoint = process.env.apiEndpoint;
 const TableName = process.env.TableName;
 
-//Main Handler Function
+//Main Handler Function 
 exports.handler = async (event) => {
   const invocationPath = event.path;
   const eventBody = JSON.parse(event.body);
