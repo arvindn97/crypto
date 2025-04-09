@@ -148,7 +148,8 @@
             "Properties": {
               "Path": "/currentPriceInfo",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" }
+              "RestApiId": { "Ref": "CryptoAPIGW" },
+              "AuthorizationType": "AWS_IAM"
             }
           },
           "PostEndpoint2": {
@@ -156,7 +157,8 @@
             "Properties": {
               "Path": "/getSearchHistory",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" }
+              "RestApiId": { "Ref": "CryptoAPIGW" },
+              "AuthorizationType": "AWS_IAM"
             }
           }
         }
