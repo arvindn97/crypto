@@ -8,7 +8,8 @@
       "senderEmail": { "email": "arvindbharathyn@gmail.com" },
       "functionName": { "name": "CryptoPriceAPI" },
       "tableName": { "name": "CryptoSearchDetails" },
-      "indexName": { "name": "emailID-index" }
+      "indexName": { "name": "emailID-index" },
+      "apiKey":{ "key": "cryptAPR25" }
     }
   },
   "Resources": {
@@ -148,7 +149,8 @@
             "Properties": {
               "Path": "/currentPriceInfo",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" }
+              "RestApiId": { "Ref": "CryptoAPIGW" },
+              "ApiKeyRequired": true
             }
           },
           "PostEndpoint2": {
@@ -156,10 +158,45 @@
             "Properties": {
               "Path": "/getSearchHistory",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" }
+              "RestApiId": { "Ref": "CryptoAPIGW" },
+              "ApiKeyRequired": true
             }
           }
         }
+      }
+    },
+    "CryptoApiKey": {
+      "Type": "AWS::ApiGateway::ApiKey",
+      "Properties": {
+        "Name": "CryptoApiKey",
+        "Enabled": true,
+        "Value": { "Fn::FindInMap": ["dev", "apiKey", "key"] },
+        "StageKeys": [
+          {
+            "RestApiId": { "Ref": "CryptoAPIGW" },
+            "StageName": "dev"
+          }
+        ]
+      }
+    },
+    "CryptoUsagePlan": {
+      "Type": "AWS::ApiGateway::UsagePlan",
+      "Properties": {
+        "UsagePlanName": "CryptoUsagePlan",
+        "ApiStages": [
+          {
+            "ApiId": { "Ref": "CryptoAPIGW" },
+            "Stage": "dev"
+          }
+        ]
+      }
+    },
+    "CryptoUsagePlanKey": {
+      "Type": "AWS::ApiGateway::UsagePlanKey",
+      "Properties": {
+        "KeyId": { "Ref": "CryptoApiKey" },
+        "KeyType": "API_KEY",
+        "UsagePlanId": { "Ref": "CryptoUsagePlan" }
       }
     }
   },
