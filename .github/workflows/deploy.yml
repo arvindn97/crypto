@@ -39,9 +39,9 @@ jobs:
           git config --global user.email "arvindbharathy.natarajan97@gmail.com"
           git config --global user.name "arvindn97"
 
-      - name: Tag the deployment
+      - name: Create and Push Tag
         env:
-          PAT: ${{ secrets.PAT }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
         run: |
           git tag -a "deploy-$(date +'%Y%m%d%H%M%S')" -m "Deployment on $(date +'%Y-%m-%d %H:%M:%S')"
-          git push https://arvindn97:${{ secrets.PAT }}@github.com/arvindn97/crypto.git --tags
+          git push https://x-access-token:${{ secrets.PAT }}@github.com/arvindn97/crypto.git --tags
