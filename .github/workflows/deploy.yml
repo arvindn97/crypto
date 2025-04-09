@@ -33,23 +33,6 @@ jobs:
           AWS_REGION: 'us-east-1'
         run: |
           sam deploy --no-confirm-changeset --stack-name crypto-app --capabilities CAPABILITY_IAM --region $AWS_REGION --resolve-s3
-        continue-on-error: true
-
-      - name: Check Deployment Status
-        if: failure()
-        run: |
-          DEPLOY_EXIT_CODE=$(cat $GITHUB_WORKSPACE/DEPLOY_EXIT_CODE)
-          if [ "$DEPLOY_EXIT_CODE" -eq 0 ]; then
-            echo "Deployment was successful."
-          elif [ "$DEPLOY_EXIT_CODE" -eq 1 ]; then
-            echo "No changes to deploy. Stack is up to date."
-            exit 0
-          else
-            echo "Deployment failed with exit code $DEPLOY_EXIT_CODE."
-            exit 1
-          fi
-        env:
-          GITHUB_WORKSPACE: ${{ github.workspace }}
 
       - name: Configure Git
         run: |
@@ -57,6 +40,8 @@ jobs:
           git config --global user.name "arvindn97"
 
       - name: Tag the deployment
+        env:
+          PAT: ${{ secrets.PAT }}
         run: |
           git tag -a "deploy-$(date +'%Y%m%d%H%M%S')" -m "Deployment on $(date +'%Y-%m-%d %H:%M:%S')"
-          git push origin --tags
+          git push https://arvindn97:${{ secrets.PAT }}@github.com/arvindn97/crypto.git --tags
