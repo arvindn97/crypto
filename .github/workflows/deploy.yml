@@ -1,5 +1,6 @@
 name: Deploy AWS SAM Application
 
+
 on:
   push:
     branches:
