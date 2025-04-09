@@ -180,7 +180,7 @@
       }
     },
     "ApiEndpoint": {
-      "Description": "API Gateway endpoint URL",
+      "Description": "APIGW endpoint URL",
       "Value": {
         "Fn::Sub": "https://${CryptoAPIGW}.execute-api.${AWS::Region}.amazonaws.com/dev/"
       }
