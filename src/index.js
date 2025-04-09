@@ -16,10 +16,6 @@ const TableName = process.env.TableName;
 exports.handler = async (event) => {
   const invocationPath = event.path;
   const eventBody = JSON.parse(event.body);
-  //Options Call validation
-  if (event.httpMethod == 'OPTIONS') {
-    return apiResponse(200, { message: "API works successfully" })
-  }
   try {
     // determine which API endpoint is being invoked and route accordingly
     switch (invocationPath) {
@@ -64,7 +60,7 @@ exports.handler = async (event) => {
           } else {
             try {
               let data = await fetchSearchHistory(eventBody);  // retrieves user specific search history from DB
-              return apiResponse(data.statusCode, data.message);
+              return apiResponse(data.statusCode, {"searchHistory":data.message});
             } catch (error) {
               console.error(error);
               return apiResponse(error.statusCode, error.message);
@@ -97,7 +93,7 @@ async function fetchAPIKey(key) {
     return response.Parameter.Value;
   } catch (error) {
     console.error(error);
-    throw { statusCode: 502, message: "Failed to fetch API Key" }
+    throw { statusCode: 500, message: "Failed to fetch API Key" }
   }
 }
 
@@ -115,14 +111,24 @@ async function fetchCryptoDetails(eventBody, apiKey) {
   try {
     const response = await fetch(url, options); //makes http call to the codeGecko API
     const data = await response.json();
-    let responseObj = {
-      "statusCode": 200,
-      "message": data
+    //validating if crypto entered by user exists
+    if (Object.keys(data).length == 0) {
+      throw { statusCode: 400, message: `Cryptocurrency "${eventBody.crypto}" does not exist or is not supported.` } //custom error throw for non existing crypto
+    } else {
+      let responseObj = {
+        "statusCode": 200,
+        "message": data
+      }
+      return responseObj;
     }
-    return responseObj;
   } catch (error) {
     console.error(error);
-    throw { statusCode: 502, message: "Failed to fetch data from external API" }
+    //preserve custom thrown errors
+    if (error.statusCode && error.message) {
+      throw error;
+    }
+    //fallback for unexpected errors
+    throw { statusCode: 500, message: "Failed to fetch data from external API" }
   }
 }
 
@@ -148,7 +154,7 @@ async function saveCryptoDetails(eventBody, data) {
     return data;
   } catch (error) {
     console.error(error);
-    throw { statusCode: 502, message: "Failed to input data to DB" }
+    throw { statusCode: 500, message: "Failed to input data to DB" }
   }
 }
 
@@ -196,7 +202,7 @@ async function sendEmail(eventBody, data) {
     return response;
   } catch (error) {
     console.error(error);
-    throw { statusCode: 502, message: "Failed to send email" }
+    throw { statusCode: 500, message: "Failed to send email" }
   }
 }
 
@@ -227,7 +233,7 @@ async function fetchSearchHistory(eventBody) {
     return responseObj;
   } catch (error) {
     console.error(error);
-    throw { statusCode: 502, message: "Failed to fetch data from DB" }
+    throw { statusCode: 500, message: "Failed to fetch data from DB" }
   }
 }
 
