@@ -1,0 +1,176 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Transform": "AWS::Serverless-2016-10-31",
+    "Mappings": {
+        "dev":{
+            "ssmPath":"/dev/cryptoAPIKey",
+            "endpoint":"https://api.coingecko.com/api/v3/simple/price",
+            "senderEmail":"arvindbharathyn@gmail.com",
+            "functionName":"CryptoPriceAPI",
+            "tableName":"CryptoSearchDetails",
+            "indexName":"emailID-index"
+        }
+    },
+    "Resources": {
+      "CryptoSearchDetails": {
+        "Type": "AWS::DynamoDB::Table",
+        "Properties": {
+          "TableName": { "Fn::FindInMap": ["dev", "tableName"] },
+          "AttributeDefinitions": [
+            {
+              "AttributeName": "ID",
+              "AttributeType": "S"
+            },
+            {
+              "AttributeName": "emailID",
+              "AttributeType": "S"
+            }
+          ],
+          "KeySchema": [
+            {
+              "AttributeName": "ID",
+              "KeyType": "HASH"
+            }
+          ],
+          "GlobalSecondaryIndexes": [
+            {
+              "IndexName": { "Fn::FindInMap": ["dev", "indexName"] },
+              "KeySchema": [
+                {
+                  "AttributeName": "emailID",
+                  "KeyType": "HASH"
+                }
+              ],
+              "Projection": {
+                "ProjectionType": "ALL"
+              }
+            }
+          ],
+          "BillingMode": "PAY_PER_REQUEST"
+        }
+      },
+      "LambdaRole": {
+        "Type": "AWS::IAM::Role",
+        "Properties": {
+          "ManagedPolicyArns": ["arn:aws:iam::aws:policy/service-role/CryptoPriceAPILambdaRole"],
+          "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "logs:CreateLogGroup"
+                    ],
+                    "Resource": [
+                        {"Fn::Join": ["",["arn:aws:logs:",{ "Ref": "AWS::Region" },":",{ "Ref": "AWS::AccountId" },":*"]]}
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "logs:CreateLogStream",
+                        "logs:PutLogEvents"
+                    ],
+                    "Resource": [
+                        {"Fn::Join": ["",["arn:aws:logs:",{ "Ref": "AWS::Region" },":",{ "Ref": "AWS::AccountId" },":log-group:/aws/lambda/",{ "Fn::FindInMap": ["dev", "functionName"] },":*"]]}
+                    ]
+                },
+                {
+                    "Sid": "tableAccess",
+                    "Effect": "Allow",
+                    "Action": [
+                        "dynamodb:GetItem",
+                        "dynamodb:PutItem",
+                        "dynamodb:Query"
+                    ],
+                    "Resource": [
+                        {"Fn::Join": ["",["arn:aws:dynamodb:",{ "Ref": "AWS::Region" },":",{ "Ref": "AWS::AccountId" },":table/",{ "Fn::FindInMap": ["dev", "tableName"] }]]},
+                        {"Fn::Join": ["",["arn:aws:dynamodb:",{ "Ref": "AWS::Region" },":",{ "Ref": "AWS::AccountId" },":table/",{ "Fn::FindInMap": ["dev", "tableName"] },"/index/",{ "Fn::FindInMap": ["dev", "indexName"] }]]}
+                    ]
+                },
+                {
+                    "Sid": "sesAccess",
+                    "Effect": "Allow",
+                    "Action": [
+                        "ses:SendEmail"
+                    ],
+                    "Resource": [
+                        {"Fn::Join": ["",["arn:aws:ses:",{ "Ref": "AWS::Region" },":",{ "Ref": "AWS::AccountId" },":*"]]}
+                    ]
+                },
+                {
+                    "Sid": "ssm",
+                    "Effect": "Allow",
+                    "Action": [
+                        "ssm:GetParameter",
+                        "ssm:GetParameters",
+                        "ssm:GetParametersByPath",
+                        "ssm:DescribeParameters"
+                    ],
+                    "Resource": [
+                        {"Fn::Join": ["",["arn:aws:ssm:",{ "Ref": "AWS::Region" },":",{ "Ref": "AWS::AccountId" },":parameter",{ "Fn::FindInMap": ["dev", "ssmPath"] }]]},
+                        {"Fn::Join": ["",["arn:aws:ssm:",{ "Ref": "AWS::Region" },":",{ "Ref": "AWS::AccountId" },":*"]]}
+                    ]
+                }
+            ]
+          }
+        }
+      },
+      "CryptoAPIGW": {
+        "Type": "AWS::Serverless::Api",
+        "Properties": {
+          "StageName": "dev"
+        }
+      },      
+      "CryptoPriceAPI": {
+        "Type": "AWS::Serverless::Function",
+        "Properties": {
+          "Handler": "index.handler",
+          "FunctionName":"CryptoPriceAPI",
+          "Runtime": "nodejs22.x",
+          "CodeUri": "src/",
+          "Environment": {
+            "Variables": {
+              "TableName": { "Fn::FindInMap": ["dev", "tableName"] },
+              "senderEmail": { "Fn::FindInMap": ["dev", "senderEmail"] },
+              "apiEndpoint" : { "Fn::FindInMap": ["dev", "endpoint"] },
+              "ssmParameterPath" : { "Fn::FindInMap": ["dev", "ssmPath"] }
+            }
+          },
+          "Role": { "Fn::GetAtt": ["LambdaRole", "Arn"] },
+          "Events": {
+            "PostEndpoint1": {
+              "Type": "Api",
+              "Properties": {
+                "Path": "/currentPriceInfo",
+                "Method": "post",
+                "RestApiId": { "Ref": "CryptoAPIGW" }
+              }
+            },
+            "PostEndpoint2": {
+              "Type": "Api",
+              "Properties": {
+                "Path": "/getSearchHistory",
+                "Method": "post",
+                "RestApiId": { "Ref": "CryptoAPIGW" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Outputs": {
+      "TableName": {
+        "Description": "DynamoDB table name",
+        "Value": {
+          "Ref": "CryptoSearchDetails"
+        }
+      },
+      "ApiEndpoint": {
+        "Description": "API Gateway endpoint URL",
+        "Value": {
+          "Fn::Sub": "https://${CryptoAPIGW}.execute-api.${AWS::Region}.amazonaws.com/dev/"
+        }
+      }
+    }
+}
