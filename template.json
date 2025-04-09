@@ -124,7 +124,15 @@
     "CryptoAPIGW": {
       "Type": "AWS::Serverless::Api",
       "Properties": {
-        "StageName": "dev"
+        "Description":"API to fetch Cryptocurrency Current Price and Search History API",
+        "StageName": "dev",
+        "EndpointConfiguration":{
+          "Type":"REGIONAL"
+        },
+        "FailOnWarning": true,
+        "Auth":{
+          "DefaultAuthorizer":"AWS_IAM"
+        }
       }
     },    
     "CryptoPriceAPI": {
