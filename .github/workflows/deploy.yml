@@ -32,7 +32,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-east-1'
         run: |
-          sam deploy --no-confirm-changeset --stack-name crypto-app --capabilities CAPABILITY_IAM
+          sam deploy --no-confirm-changeset --stack-name crypto-app --capabilities CAPABILITY_IAM --region $AWS_REGION
 
       - name: Tag the deployment
         run: |
