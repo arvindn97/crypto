@@ -8,7 +8,7 @@
       "senderEmail": { "email": "arvindbharathyn@gmail.com" },
       "functionName": { "name": "CryptoPriceAPI" },
       "tableName": { "name": "CryptoSearchDetails" },
-      "indexName": { "name": "emailID-index" }
+      "indexName": { "name": "emailID-index" } 
     }
   },
   "Resources": {
