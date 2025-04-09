@@ -1,0 +1,23 @@
+{
+  "name": "cryptopriceapi",
+  "version": "1.0.0",
+  "description": "api to fetch crypto current price, store and retrieve search history",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arvindn97/crypto.git"
+  },
+  "author": "arvind",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arvindn97/crypto/issues"
+  },
+  "homepage": "https://github.com/arvindn97/crypto#readme",
+  "dependencies": {
+    "moment": "^2.30.1",
+    "uuid": "^11.1.0"
+  }
+}
