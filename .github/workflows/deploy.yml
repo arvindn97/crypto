@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '18'
 
       - name: Install AWS SAM CLI
         run: |
@@ -33,6 +33,11 @@ jobs:
           AWS_REGION: 'us-east-1'
         run: |
           sam deploy --no-confirm-changeset --stack-name crypto-app --capabilities CAPABILITY_IAM --region $AWS_REGION --resolve-s3
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "arvindbharathy.natarajan97@gmail.com"
+          git config --global user.name "arvindn97"
 
       - name: Tag the deployment
         run: |
