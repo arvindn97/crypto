@@ -123,7 +123,11 @@
     "CryptoAPIGW": {
       "Type": "AWS::Serverless::Api",
       "Properties": {
-        "StageName": "dev"
+        "StageName": "dev",
+        "Auth": {
+          "DefaultAuthorizer": "AWS_IAM",
+          "AddDefaultAuthorizerToCorsPreflight": false
+        }
       }
     },      
     "CryptoPriceAPI": {
@@ -148,8 +152,7 @@
             "Properties": {
               "Path": "/currentPriceInfo",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" },
-              "AuthorizationType": "AWS_IAM"
+              "RestApiId": { "Ref": "CryptoAPIGW" }
             }
           },
           "PostEndpoint2": {
@@ -157,8 +160,7 @@
             "Properties": {
               "Path": "/getSearchHistory",
               "Method": "post",
-              "RestApiId": { "Ref": "CryptoAPIGW" },
-              "AuthorizationType": "AWS_IAM"
+              "RestApiId": { "Ref": "CryptoAPIGW" }
             }
           }
         }
