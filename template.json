@@ -129,7 +129,6 @@
         "EndpointConfiguration":{
           "Type":"REGIONAL"
         },
-        "FailOnWarning": true,
         "Auth":{
           "DefaultAuthorizer":"AWS_IAM"
         }
