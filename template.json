@@ -123,7 +123,10 @@
     "CryptoAPIGW": {
       "Type": "AWS::Serverless::Api",
       "Properties": {
-        "StageName": "dev"
+        "StageName": "dev",
+        "Auth": {
+          "DefaultAuthorizer": "AWS_IAM"
+        }
       }
     },      
     "CryptoPriceAPI": {
