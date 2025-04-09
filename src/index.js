@@ -243,7 +243,7 @@ const apiResponse = (statusCode, body) => {
     statusCode: statusCode,
     headers: {
       'Access-Control-Allow-Origin': '*',  // Allow all domains
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',  // Allowed methods
+      'Access-Control-Allow-Methods': 'POST',  // Allowed methods
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',  // Allowed headers
       'Access-Control-Allow-Credentials': 'true',  // Allow credentials
     },
