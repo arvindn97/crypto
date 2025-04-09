@@ -34,25 +34,3 @@ jobs:
           AWS_REGION: 'us-east-1'
         run: |
           sam deploy --no-confirm-changeset --stack-name crypto-app --capabilities CAPABILITY_IAM --region $AWS_REGION --resolve-s3
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "arvindbharathy.natarajan97@gmail.com"
-          git config --global user.name "arvindn97"
-      - name: Debug PAT presence
-        run: |
-          if [ -z "$PAT" ]; then
-            echo "PAT is NOT set!"
-          else
-            echo "PAT is set: ***"
-          fi
-        env:
-          PAT: ${{ secrets.PAT }}
-
-      - name: Create and Push Tag
-        env:
-            PAT: ${{ secrets.PAT }}
-        run: |
-          git remote set-url origin https://x-access-token:${PAT}@github.com/arvindn97/crypto.git
-          git tag -a "deploy-$(date +'%Y%m%d%H%M%S')" -m "Deployment on $(date +'%Y-%m-%d %H:%M:%S')"
-          git push origin --tags
