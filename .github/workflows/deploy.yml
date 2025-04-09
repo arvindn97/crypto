@@ -41,7 +41,8 @@ jobs:
 
       - name: Create and Push Tag
         env:
-          PAT: ${{ secrets.PAT }}
+            PAT: ${{ secrets.PAT }}
         run: |
+          git remote set-url origin https://x-access-token:${PAT}@github.com/arvindn97/crypto.git
           git tag -a "deploy-$(date +'%Y%m%d%H%M%S')" -m "Deployment on $(date +'%Y-%m-%d %H:%M:%S')"
-          git push https://x-access-token:${{ secrets.PAT }}@github.com/arvindn97/crypto.git --tags
+          git push origin --tags
