@@ -134,8 +134,8 @@ async function saveCryptoDetails(eventBody, data) {
         "emailID": eventBody.emailID,
         "price": "A$" + cryptoData.aud,
         "marketCap": "A$" + cryptoData.aud_market_cap,
-        "volume24h": "A$" +cryptoData.aud_24h_vol,
-        "change24h": "A$" +cryptoData.aud_24h_change,
+        "volume24h": "A$" + cryptoData.aud_24h_vol,
+        "change24h": "A$" + cryptoData.aud_24h_change,
         "timestamp": moment().format('YYYY-MM-DD HH:mm:ss')
       }
       const params = {
@@ -203,28 +203,48 @@ async function sendEmail(eventBody, data) {
 //function to query the user specific crypto search history
 async function fetchSearchHistory(eventBody) {
   try {
-    const params = {
-      ExpressionAttributeValues: {
-        ":emailID": marshall(eventBody.emailID)
-      },
-      ExpressionAttributeNames: {
-        "#timestamp": "timestamp",
-        "#crypto": "crypto",
-        "#price": "price"
-      },
-      KeyConditionExpression: "emailID = :emailID",
-      ProjectionExpression: "#crypto, #price, #timestamp",
-      TableName: TableName,
-      IndexName: "emailID-index",
-    };
-    const command = new QueryCommand(params);
-    const response = await client.send(command);
-    let unmarshalledItems = response.Items.map(item => unmarshall(item)); // unmarshalling the response
+    let queryResponse = await paginatedQuery(eventBody.emailID); //paginated funtion to fetch larger dataset, future proof
+    let unmarshalledItems = queryResponse.map(item => unmarshall(item)); // unmarshalling the response
     let responseObj = {
       "statusCode": 200,
       "message": unmarshalledItems
     }
     return responseObj;
+  } catch (error) {
+    console.error(error);
+    throw { statusCode: 500, message: "Failed to fetch data from DB" }
+  }
+}
+
+//function to run paginated query to enable feasibility of handling larger datasets as we are dealing with searchHistory
+async function paginatedQuery(emailID) {
+  let items = [];
+  let lastEvaluatedKey = null;
+  try {
+    do {
+      const params = {
+        ExpressionAttributeValues: {
+          ":emailID": marshall(emailID)
+        },
+        ExpressionAttributeNames: {
+          "#timestamp": "timestamp",
+          "#crypto": "crypto",
+          "#price": "price"
+        },
+        KeyConditionExpression: "emailID = :emailID",
+        ProjectionExpression: "#crypto, #price, #timestamp",
+        TableName: TableName,
+        IndexName: "emailID-index",
+        ExclusiveStartKey: lastEvaluatedKey
+      };
+      const command = new QueryCommand(params);
+      const response = await client.send(command);
+      if (response.Items) {
+        items = items.concat(response.Items);
+      }
+      lastEvaluatedKey = response.LastEvaluatedKey;
+    } while (lastEvaluatedKey);
+    return items;
   } catch (error) {
     console.error(error);
     throw { statusCode: 500, message: "Failed to fetch data from DB" }
