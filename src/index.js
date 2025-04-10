@@ -135,7 +135,7 @@ async function saveCryptoDetails(eventBody, data) {
         "price": "A$" + cryptoData.aud,
         "marketCap": "A$" + cryptoData.aud_market_cap,
         "volume24h": "A$" + cryptoData.aud_24h_vol,
-        "change24h": "A$" + cryptoData.aud_24h_change,
+        "change24h": cryptoData.aud_24h_change,
         "timestamp": moment().format('YYYY-MM-DD HH:mm:ss')
       }
       const params = {
