@@ -174,7 +174,6 @@ async function sendEmail(eventBody, data) {
       emailBodyContent += `---------------------------\n`;
     }
     const emailBodyText = emailBodyHeader + emailBodyContent + emailBodyFooter;
-    console.log("EmailBody:", emailBodyText);
     const params = {
       Destination: {
         ToAddresses: [eventBody.emailID],
