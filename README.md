@@ -9,4 +9,4 @@ This project is a serverless AWS Lambda application that fetches real-time crypt
 - Send email alerts to users using AWS SES
 - Save user-specific search history in DynamoDB
 - Built with AWS SDK v3 and Node.js
-- Uses public CoinGecko API
+- Uses public CoinGecko API 
